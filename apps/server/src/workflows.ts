@@ -167,13 +167,13 @@ export class WorkflowService {
 
     void executeWorkflow(workflow.graph, handlers, {
       runInput: input,
-      onNodeFinished: (log) => {
+      onNodeFinished: this.db.transaction((log: NodeRunLog) => {
         const row = this.db.prepare('SELECT logs FROM runs WHERE id = ?').get(runId) as { logs: string } | undefined;
         if (!row) return;
         const logs = JSON.parse(row.logs) as NodeRunLog[];
         logs.push(log);
         this.db.prepare('UPDATE runs SET logs = ? WHERE id = ?').run(JSON.stringify(logs), runId);
-      }
+      })
     })
       .then((result) => {
         this.db

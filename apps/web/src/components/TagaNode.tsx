@@ -1,14 +1,5 @@
 import { Handle, Position, type NodeProps } from 'reactflow';
-import { NODE_CATALOG_BY_TYPE } from '@taga/shared';
-
-const CATEGORY_LABELS: Record<string, string> = {
-  input: 'مدخلات',
-  ai: 'ذكاء اصطناعي',
-  web: 'ويب',
-  logic: 'منطق',
-  integration: 'تكاملات',
-  output: 'مخرجات'
-};
+import { CATEGORY_LABELS_AR, NODE_CATALOG_BY_TYPE } from '@taga/shared';
 
 export default function TagaNode({ data, selected }: NodeProps<{ nodeType: string }>) {
   const definition = NODE_CATALOG_BY_TYPE[data.nodeType];
@@ -17,7 +8,7 @@ export default function TagaNode({ data, selected }: NodeProps<{ nodeType: strin
   }
   return (
     <div className={`taga-node${selected ? ' selected' : ''}`}>
-      <div className="category">{CATEGORY_LABELS[definition.category] ?? definition.category}</div>
+      <div className="category">{CATEGORY_LABELS_AR[definition.category] ?? definition.category}</div>
       <div>{definition.labelAr}</div>
       {definition.inputs.map((input, index) => (
         <Handle

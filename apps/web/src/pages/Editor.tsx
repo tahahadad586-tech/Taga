@@ -12,20 +12,11 @@ import ReactFlow, {
   type ReactFlowInstance
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { NODE_CATALOG, NODE_CATALOG_BY_TYPE, type ValidationIssue, type Workflow, type WorkflowRun } from '@taga/shared';
+import { CATEGORY_LABELS_AR, NODE_CATALOG, NODE_CATALOG_BY_TYPE, type ValidationIssue, type Workflow, type WorkflowRun } from '@taga/shared';
 import { api } from '../api';
 import TagaNode from '../components/TagaNode';
 
 const nodeTypes = { taga: TagaNode };
-
-const CATEGORY_LABELS: Record<string, string> = {
-  input: 'مدخلات ومشغّلات',
-  ai: 'ذكاء اصطناعي',
-  web: 'ويب',
-  logic: 'منطق وبيانات',
-  integration: 'تكاملات',
-  output: 'مخرجات'
-};
 
 function toFlowNodes(workflow: Workflow): Node[] {
   return workflow.graph.nodes.map((node) => ({
@@ -219,7 +210,7 @@ export default function Editor() {
           <h3 style={{ marginTop: 0 }}>مكتبة العُقد</h3>
           {[...categories.entries()].map(([category, definitions]) => (
             <div key={category}>
-              <h4>{CATEGORY_LABELS[category] ?? category}</h4>
+              <h4>{CATEGORY_LABELS_AR[category] ?? category}</h4>
               {definitions.map((definition) => (
                 <div
                   key={definition.type}

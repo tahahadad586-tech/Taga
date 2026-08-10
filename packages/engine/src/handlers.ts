@@ -82,7 +82,7 @@ export function createDefaultHandlers(options: HandlerOptions = {}): HandlerRegi
       const langInstruction =
         language === 'ar' ? 'أجب بالعربية. ' : language === 'en' ? 'Answer in English. ' : '';
       const summary = await callLlm(
-        'https://api.openai.com/v1',
+        String(params.apiBase ?? 'https://api.openai.com/v1'),
         llmApiKey,
         String(params.model ?? 'gpt-4o-mini'),
         `${langInstruction}Summarize the following text concisely:\n\n${text}`

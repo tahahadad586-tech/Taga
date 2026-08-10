@@ -56,7 +56,8 @@ export const NODE_CATALOG: NodeDefinition[] = [
     outputs: ['summary'],
     params: [
       { key: 'model', label: 'Model', labelAr: 'النموذج', type: 'string', default: 'gpt-4o-mini' },
-      { key: 'language', label: 'Output language', labelAr: 'لغة المخرجات', type: 'select', options: ['auto', 'ar', 'en'], default: 'auto' }
+      { key: 'language', label: 'Output language', labelAr: 'لغة المخرجات', type: 'select', options: ['auto', 'ar', 'en'], default: 'auto' },
+      { key: 'apiBase', label: 'API base URL', labelAr: 'رابط الواجهة', type: 'string', default: 'https://api.openai.com/v1' }
     ]
   },
   {
@@ -146,3 +147,13 @@ export const NODE_CATALOG: NodeDefinition[] = [
 export const NODE_CATALOG_BY_TYPE: Record<string, NodeDefinition> = Object.fromEntries(
   NODE_CATALOG.map((definition) => [definition.type, definition])
 );
+
+/** Arabic display labels for node categories, shared by the palette and node UI. */
+export const CATEGORY_LABELS_AR: Record<string, string> = {
+  input: 'مدخلات ومشغّلات',
+  ai: 'ذكاء اصطناعي',
+  web: 'ويب',
+  logic: 'منطق وبيانات',
+  integration: 'تكاملات',
+  output: 'مخرجات'
+};
