@@ -1,0 +1,19 @@
+{
+  "name": "taga",
+  "version": "0.1.0",
+  "private": true,
+  "description": "منصة أتمتة سير عمل مدعومة بالذكاء الاصطناعي — AI-powered no-code workflow automation platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @taga/shared -w @taga/engine -w @taga/server -w @taga/web",
+    "test": "npm run test -w @taga/engine -w @taga/server",
+    "dev:server": "npm run dev -w @taga/server",
+    "dev:web": "npm run dev -w @taga/web"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
