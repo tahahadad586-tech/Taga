@@ -1,5 +1,6 @@
-import express, { type Express, type Response } from 'express';
+import express, { type Express } from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import type Database from 'better-sqlite3';
 import { NODE_CATALOG } from '@taga/shared';
 import { validateGraph } from '@taga/engine';
@@ -7,25 +8,8 @@ import { createAuthRouter, requireAuth, type AuthedRequest } from './auth.js';
 import { WorkflowService } from './workflows.js';
 import { Scheduler } from './scheduler.js';
 
-/** Simple fixed-window per-IP rate limiter. */
-function rateLimit(maxPerMinute: number) {
-  const hits = new Map<string, { count: number; windowStart: number }>();
-  return (req: AuthedRequest, res: Response, next: () => void) => {
-    const key = req.ip ?? 'unknown';
-    const now = Date.now();
-    const entry = hits.get(key);
-    if (!entry || now - entry.windowStart > 60_000) {
-      hits.set(key, { count: 1, windowStart: now });
-      next();
-      return;
-    }
-    entry.count += 1;
-    if (entry.count > maxPerMinute) {
-      res.status(429).json({ error: 'Too many requests, slow down' });
-      return;
-    }
-    next();
-  };
+function limiter(maxPerMinute: number) {
+  return rateLimit({ windowMs: 60_000, limit: maxPerMinute, standardHeaders: true, legacyHeaders: false });
 }
 
 export function createApp(db: Database.Database): { app: Express; scheduler: Scheduler } {
@@ -35,7 +19,7 @@ export function createApp(db: Database.Database): { app: Express; scheduler: Sch
 
   app.use(cors());
   app.use(express.json({ limit: '1mb' }));
-  app.use(rateLimit(300));
+  app.use(limiter(300));
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, name: 'Taga', version: '0.1.0' });
@@ -45,7 +29,7 @@ export function createApp(db: Database.Database): { app: Express; scheduler: Sch
     res.json(NODE_CATALOG);
   });
 
-  app.use('/api/auth', rateLimit(30), createAuthRouter(db));
+  app.use('/api/auth', limiter(30), createAuthRouter(db));
 
   // --- Workflows CRUD ---
   app.get('/api/workflows', requireAuth, (req: AuthedRequest, res) => {
@@ -142,7 +126,7 @@ export function createApp(db: Database.Database): { app: Express; scheduler: Sch
   });
 
   // --- Webhook trigger (public, no auth: the workflow id acts as the secret path) ---
-  app.post('/api/hooks/:workflowId', rateLimit(60), (req, res) => {
+  app.post('/api/hooks/:workflowId', limiter(60), (req, res) => {
     const workflow = workflows.getAnyOwner(req.params.workflowId);
     if (!workflow || workflow.trigger.type !== 'webhook') {
       res.status(404).json({ error: 'Webhook not found' });
