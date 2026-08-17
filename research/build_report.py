@@ -13,9 +13,8 @@ import shutil
 from pathlib import Path
 
 from docx import Document
-from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
@@ -706,7 +705,7 @@ def convert_to_pdf(docx_path: Path) -> Path:
     soffice = shutil.which("soffice") or shutil.which("libreoffice")
     if soffice is None:
         raise RuntimeError("LibreOffice (soffice) is required to export the PDF")
-    subprocess.run(
+    result = subprocess.run(
         [
             soffice,
             "--headless",
@@ -716,9 +715,14 @@ def convert_to_pdf(docx_path: Path) -> Path:
             str(docx_path.parent),
             str(docx_path),
         ],
-        check=True,
         capture_output=True,
+        text=True,
     )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"LibreOffice failed to export the PDF (exit code {result.returncode}):\n"
+            f"{result.stdout}\n{result.stderr}"
+        )
     pdf_path = docx_path.with_suffix(".pdf")
     print(f"wrote {pdf_path}")
     return pdf_path
